@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "TailwindSight",
+  "version": "1.0",
+  "description": "Instantly inspect, view, and copy Tailwind CSS classes from any selected element on a webpage.",
+  "permissions": ["scripting", "tabs", "activeTab", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon.png",
+      "48": "icons/icon.png",
+      "128": "icons/icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "css": ["style.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["tailwind-classes.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

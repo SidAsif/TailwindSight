@@ -1,0 +1,109 @@
+#tw-inspector-panel {
+  z-index: 99999;
+  font-family: sans-serif;
+  transition: top 0.1s ease, left 0.1s ease;
+}
+
+.tw-panel {
+  background: #1e293b;
+  color: #f1f5f9;
+  padding: 12px;
+  border-radius: 12px;
+  width: 270px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.tw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  color: #60a5fa; /* light blue for header title */
+  margin-bottom: 8px;
+}
+
+.tw-actions button {
+  background: none;
+  color: #f1f5f9;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: color 0.2s ease;
+}
+.tw-actions button:hover {
+  color: #3b82f6;
+}
+
+#tw-class-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+}
+
+#tw-class-list li {
+  display: flex;
+  justify-content: space-between;
+  background: #334155;
+  padding: 6px 10px;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #f1f5f9;
+}
+#tw-class-list li button {
+  background: none;
+  color: #f87171;
+  border: none;
+  cursor: pointer;
+}
+
+#tw-add-input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+#tw-suggestions {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #0f172a;
+  color: #f1f5f9;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid #475569;
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 13px;
+  z-index: 9999;
+}
+
+#tw-error-box {
+  color: #f87171;
+  font-size: 13px;
+  margin: 6px 0;
+}
+
+#tw-add-btn {
+  width: 100%;
+  padding: 8px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+#tw-add-btn:hover {
+  background: #2563eb;
+}
