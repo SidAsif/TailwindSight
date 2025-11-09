@@ -1,71 +1,159 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
 #tw-inspector-panel {
   z-index: 99999;
-  font-family: sans-serif;
-  transition: top 0.1s ease, left 0.1s ease;
+  font-family: "Inter", sans-serif;
+  transition: top 0.15s ease, left 0.15s ease;
 }
 
 .tw-panel {
-  background: #1e293b;
+  background: rgba(15, 20, 25, 0.98);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #f1f5f9;
-  padding: 12px;
+  padding: 14px;
   border-radius: 12px;
-  width: 270px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  width: 340px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(51, 65, 85, 0.5);
+  border: 1px solid #1e293b;
 }
 
 .tw-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  color: #60a5fa; /* light blue for header title */
-  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #cbd5e1;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #1e293b;
 }
 
 .tw-actions button {
-  background: none;
-  color: #f1f5f9;
-  border: none;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
   cursor: pointer;
   font-size: 16px;
-  padding: 4px;
-  transition: color 0.2s ease;
+  padding: 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .tw-actions button:hover {
-  color: #3b82f6;
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+.tw-actions button:active {
+  transform: scale(0.95);
 }
 
 #tw-class-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 10px;
+  padding-right: 4px;
+  margin: 0 0 12px;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #475569 #1e293b;
+}
+
+#tw-class-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+#tw-class-list::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 5px;
+  margin: 2px 0;
+}
+
+#tw-class-list::-webkit-scrollbar-track:hover {
+  background: #334155;
+}
+
+#tw-class-list::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 5px;
+  border: 2px solid #1e293b;
+  min-height: 30px;
+}
+
+#tw-class-list::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+  border-color: #334155;
+}
+
+#tw-class-list::-webkit-scrollbar-thumb:active {
+  background: #6366f1;
 }
 
 #tw-class-list li {
   display: flex;
   justify-content: space-between;
-  background: #334155;
-  padding: 6px 10px;
+  align-items: center;
+  background: #1e293b;
+  padding: 9px 12px;
   margin-bottom: 5px;
   border-radius: 6px;
   font-size: 13px;
-  color: #f1f5f9;
+  font-weight: 500;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  transition: all 0.15s ease;
 }
+
+#tw-class-list li:hover {
+  background: #334155;
+  border-color: #475569;
+}
+
 #tw-class-list li button {
-  background: none;
+  background: transparent;
   color: #f87171;
-  border: none;
+  border: 1px solid #7f1d1d;
   cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+#tw-class-list li button:hover {
+  background: #7f1d1d;
+  color: #fca5a5;
 }
 
 #tw-add-input {
   width: 100%;
-  padding: 6px;
-  border: 1px solid #475569;
+  padding: 9px 12px;
+  border: 1px solid #334155;
   border-radius: 6px;
-  margin-bottom: 6px;
-  background: #0f172a;
+  margin-bottom: 8px;
+  background: #0f1419;
   color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: "Inter", sans-serif;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+#tw-add-input:focus {
+  border-color: #6366f1;
+  background: #1a1f26;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+#tw-add-input::placeholder {
+  color: #64748b;
 }
 
 #tw-suggestions {
@@ -74,36 +162,104 @@
   top: 100%;
   left: 0;
   width: 100%;
-  background: #0f172a;
+  background: #0f1419;
   color: #f1f5f9;
   list-style: none;
-  margin: 0;
+  margin: 4px 0 0 0;
   padding: 4px;
-  border-radius: 6px;
-  border: 1px solid #475569;
-  max-height: 120px;
+  padding-right: 8px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  max-height: 180px;
   overflow-y: auto;
   font-size: 13px;
   z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  scrollbar-width: thin;
+  scrollbar-color: #475569 #0f1419;
+}
+
+#tw-suggestions::-webkit-scrollbar {
+  width: 10px;
+}
+
+#tw-suggestions::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 5px;
+  margin: 4px 0;
+}
+
+#tw-suggestions::-webkit-scrollbar-track:hover {
+  background: #334155;
+}
+
+#tw-suggestions::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 5px;
+  border: 2px solid #0f1419;
+  min-height: 30px;
+}
+
+#tw-suggestions::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+  border-color: #1e293b;
+}
+
+#tw-suggestions::-webkit-scrollbar-thumb:active {
+  background: #6366f1;
+}
+
+#tw-suggestions li {
+  padding: 7px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  font-weight: 400;
+  color: #cbd5e1;
+}
+
+#tw-suggestions li:hover {
+  background: #1e293b;
+  color: #f1f5f9;
 }
 
 #tw-error-box {
-  color: #f87171;
-  font-size: 13px;
-  margin: 6px 0;
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(127, 29, 29, 0.2);
+  border: 1px solid #7f1d1d;
+  border-radius: 6px;
+  display: none;
+}
+
+#tw-error-box:not(:empty) {
+  display: block;
 }
 
 #tw-add-btn {
   width: 100%;
-  padding: 8px;
-  background: #3b82f6;
+  padding: 9px 14px;
+  background: #6366f1;
   color: white;
   border: none;
   border-radius: 6px;
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 13px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  font-family: "Inter", sans-serif;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
+
 #tw-add-btn:hover {
-  background: #2563eb;
+  background: #4f46e5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+#tw-add-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }

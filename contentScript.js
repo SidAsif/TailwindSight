@@ -35,6 +35,20 @@ chrome.runtime.onMessage.addListener((message) => {
   }
 });
 
+function removeHighlight() {
+  if (highlightBox) {
+    highlightBox.remove();
+    highlightBox = null;
+  }
+}
+
+function removePanel() {
+  if (panelEl) {
+    panelEl.style.display = "none";
+    window.__tw_selectedEl = null;
+  }
+}
+
 function isInsidePanel(el) {
   return el.closest("#tw-inspector-panel") !== null;
 }
@@ -58,11 +72,13 @@ function highlightElement(el) {
     left: `${rect.left + window.scrollX}px`,
     width: `${rect.width}px`,
     height: `${rect.height}px`,
-    border: "2px solid #3b82f6",
+    border: "2px solid #6366f1",
     borderRadius: "4px",
-    boxShadow: "0 0 0 2px rgba(59,130,246,0.4)",
+    boxShadow: "0 0 0 2px rgba(99, 102, 241, 0.2)",
     pointerEvents: "none",
     zIndex: "99998",
+    background: "rgba(99, 102, 241, 0.05)",
+    transition: "all 0.15s ease",
   });
 
   document.body.appendChild(highlightBox);
@@ -202,7 +218,8 @@ function createPanel() {
         "mouseout",
         () => (li.style.background = "transparent")
       );
-      li.addEventListener("click", () => {
+      li.addEventListener("mousedown", (e) => {
+        e.preventDefault(); // Prevent input from losing focus
         saveState(window.__tw_selectedEl);
         window.__tw_selectedEl.classList.add(match);
         input.value = "";
@@ -218,7 +235,7 @@ function createPanel() {
   });
 
   input.addEventListener("blur", () => {
-    setTimeout(() => (suggestionBox.style.display = "none"), 100);
+    setTimeout(() => (suggestionBox.style.display = "none"), 200);
   });
 }
 
@@ -227,24 +244,32 @@ function showToast(message = "Copied!", duration = 1500) {
   toast.textContent = message;
   Object.assign(toast.style, {
     position: "fixed",
-    top: "10px",
-    right: "10px",
-    background: "#22c55e",
-    color: "white",
-    padding: "8px 14px",
-    borderRadius: "6px",
-    fontSize: "14px",
-    fontFamily: "sans-serif",
+    top: "20px",
+    right: "20px",
+    background: "#18181b",
+    color: "#f1f5f9",
+    padding: "10px 16px",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontFamily: "Inter, sans-serif",
+    fontWeight: "500",
     zIndex: 99999,
     opacity: "0",
-    transition: "opacity 0.2s ease",
+    transform: "translateY(-10px)",
+    transition: "all 0.2s ease",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+    border: "1px solid #334155",
   });
 
   document.body.appendChild(toast);
-  setTimeout(() => (toast.style.opacity = "1"), 10);
+  setTimeout(() => {
+    toast.style.opacity = "1";
+    toast.style.transform = "translateY(0)";
+  }, 10);
   setTimeout(() => {
     toast.style.opacity = "0";
-    setTimeout(() => toast.remove(), 300);
+    toast.style.transform = "translateY(-10px)";
+    setTimeout(() => toast.remove(), 200);
   }, duration);
 }
 
