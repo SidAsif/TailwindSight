@@ -59,6 +59,51 @@ function saveState(el) {
   redoStack = [];
 }
 
+function validateTailwindClass(className) {
+  // Remove leading/trailing whitespace
+  className = className.trim();
+
+  // Empty class is invalid
+  if (!className) return false;
+
+  // Remove ! prefix if present (important modifier)
+  const classWithoutImportant = className.replace(/^!/, "");
+
+  // Check for opacity modifier (e.g., text-gray-600/90)
+  const parts = classWithoutImportant.split("/");
+  let baseClass = parts[0];
+
+  // Handle responsive/state prefixes (e.g., md:text-4xl, hover:bg-blue-500, dark:text-white)
+  // Multiple prefixes are allowed: md:hover:text-4xl
+  const prefixPattern = /^([a-z0-9]+:)+/;
+  const coreClass = baseClass.replace(prefixPattern, "");
+
+  // Check if core class exists in tailwindClasses
+  if (tailwindClasses.includes(coreClass)) {
+    return true;
+  }
+
+  // Check if base class (without prefixes) exists
+  if (tailwindClasses.includes(baseClass)) {
+    return true;
+  }
+
+  // Check for arbitrary values (e.g., text-[#123456], w-[100px], md:w-[100px])
+  if (coreClass.includes("[") && coreClass.includes("]")) {
+    // Extract the prefix before the bracket
+    const prefix = coreClass.split("[")[0];
+    // Check if any tailwind class starts with this prefix
+    return tailwindClasses.some((cls) => cls.startsWith(prefix));
+  }
+
+  // Check if the full class (with opacity) exists
+  if (tailwindClasses.includes(classWithoutImportant)) {
+    return true;
+  }
+
+  return false;
+}
+
 function highlightElement(el) {
   if (!el) return;
   if (highlightBox) highlightBox.remove();
@@ -128,6 +173,10 @@ function createPanel() {
         </div>
       </div>
      <ul id="tw-class-list"></ul>
+     <div style="font-size:10px; color:#64748b; margin-bottom:8px; display:flex; gap:12px;">
+       <span><span style="color:#22c55e;">●</span> Active</span>
+       <span><span style="color:#64748b;">○</span> Inactive</span>
+     </div>
    <div style="position:relative;">
       <input id="tw-add-input" type="text" placeholder="Add new class" />
       <ul id="tw-suggestions"></ul>
@@ -175,7 +224,10 @@ function createPanel() {
     const newClass = input.value.trim();
     if (!newClass || !window.__tw_selectedEl) return;
 
-    if (!tailwindClasses.includes(newClass)) {
+    // Validate Tailwind class (support opacity modifiers, important, and arbitrary values)
+    const isValidClass = validateTailwindClass(newClass);
+
+    if (!isValidClass) {
       showError("❌ Invalid Tailwind class");
       return;
     }
@@ -194,7 +246,8 @@ function createPanel() {
     const query = input.value.trim();
     suggestionBox.innerHTML = "";
 
-    if (tailwindClasses.includes(query)) {
+    // Hide error if valid class (including opacity modifiers, etc.)
+    if (validateTailwindClass(query)) {
       hideError();
     }
 
@@ -284,14 +337,41 @@ function hideError() {
 }
 
 function updatePanel(el) {
-  const classList = el.className.trim().split(/\s+/);
+  const classList = el.className.trim().split(/\s+/).filter(cls => cls);
   const list = document.getElementById("tw-class-list");
   list.innerHTML = "";
 
-  classList.forEach((cls) => {
+  // Get computed styles to check if classes are actually applied
+  const computedStyle = window.getComputedStyle(el);
+
+  // Find conflicting classes (later ones override earlier ones)
+  const conflicts = findConflictingClasses(classList);
+
+  classList.forEach((cls, index) => {
     const li = document.createElement("li");
-    li.innerHTML = `${cls}
-      <button data-remove="${cls}" style="color:#f87171; float:right; border:none; background:none;">x</button>`;
+
+    // Check if this class is overridden by a later conflicting class
+    const isOverridden = conflicts[index];
+
+    // Check if this class is likely having an effect
+    const isActive = !isOverridden && isClassActive(cls, el, computedStyle);
+
+    // Add status dot indicator
+    const statusDot = isActive
+      ? '<span style="color:#22c55e; font-weight:700; font-size:12px;">●</span>'
+      : '<span style="color:#64748b; font-weight:700; font-size:12px;">○</span>';
+
+    li.innerHTML = `
+      <span style="flex:1; display:flex; align-items:center; gap:8px;">
+        <span style="color:#e2e8f0;">${cls}</span>
+        ${statusDot}
+      </span>
+      <button data-remove="${cls}">x</button>`;
+
+    li.style.display = "flex";
+    li.style.justifyContent = "space-between";
+    li.style.alignItems = "center";
+
     list.appendChild(li);
   });
 
@@ -303,6 +383,104 @@ function updatePanel(el) {
       updatePanel(el);
     });
   });
+}
+
+function findConflictingClasses(classList) {
+  // Returns an array where true means the class at that index is overridden
+  const overridden = new Array(classList.length).fill(false);
+
+  // Property groups that conflict with each other
+  const propertyGroups = {
+    // Font size (text-xl, text-2xl, etc.)
+    fontSize: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*text-(xs|sm|base|lg|xl|2xl|3xl|4xl|5xl|6xl|7xl|8xl|9xl)$/,
+    // Text color
+    textColor: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*text-\w+(-\d+)?(\/\d+)?$/,
+    // Background color
+    bgColor: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*bg-\w+(-\d+)?(\/\d+)?$/,
+    // Display
+    display: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*(block|inline|inline-block|flex|inline-flex|grid|hidden)$/,
+    // Width
+    width: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*w-/,
+    // Height
+    height: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*h-/,
+    // Padding
+    padding: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*p-/,
+    paddingX: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*px-/,
+    paddingY: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*py-/,
+    paddingTop: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*pt-/,
+    paddingBottom: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*pb-/,
+    paddingLeft: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*pl-/,
+    paddingRight: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*pr-/,
+    // Margin (similar to padding)
+    margin: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*m-/,
+    marginX: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*mx-/,
+    marginY: /^(md:|lg:|xl:|2xl:|sm:|hover:|focus:|dark:|active:|disabled:|group-hover:)*my-/,
+  };
+
+  // For each class, check if a later class in the same property group overrides it
+  for (let i = 0; i < classList.length; i++) {
+    const currentClass = classList[i];
+
+    // Extract prefix (e.g., "md:", "hover:", etc.)
+    const currentPrefix = currentClass.match(/^([a-z0-9]+:)*/)?.[0] || '';
+
+    for (let j = i + 1; j < classList.length; j++) {
+      const laterClass = classList[j];
+      const laterPrefix = laterClass.match(/^([a-z0-9]+:)*/)?.[0] || '';
+
+      // Only check for conflicts if they have the same prefix (same breakpoint/state)
+      if (currentPrefix === laterPrefix) {
+        // Check each property group
+        for (const group of Object.values(propertyGroups)) {
+          if (group.test(currentClass) && group.test(laterClass)) {
+            // Same property group and same prefix - later one wins
+            overridden[i] = true;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return overridden;
+}
+
+function isClassActive(className, el, computedStyle) {
+  // Simple heuristic to check if a class is likely active
+  // This checks for common Tailwind patterns
+
+  // Hidden class check
+  if (className.includes('hidden') || className.includes('invisible')) {
+    return computedStyle.display === 'none' || computedStyle.visibility === 'hidden';
+  }
+
+  // Display classes
+  if (className.match(/^(block|inline|flex|grid|table)/)) {
+    return true; // Display classes are usually active if element is visible
+  }
+
+  // Color classes (text, bg, border)
+  if (className.match(/^(text|bg|border)-/)) {
+    return true; // Color classes are typically active
+  }
+
+  // Spacing classes (p, m, gap, space)
+  if (className.match(/^(p|m|gap|space)-/)) {
+    return true;
+  }
+
+  // Size classes
+  if (className.match(/^(w|h|min|max)-/)) {
+    return true;
+  }
+
+  // Responsive classes - assume active (can't easily check)
+  if (className.includes(':')) {
+    return true; // Show as active since we can't determine responsiveness easily
+  }
+
+  // Default: assume active for most Tailwind classes
+  return true;
 }
 
 document.addEventListener("click", (e) => {
