@@ -53,10 +53,9 @@
     TailwindSight requests minimal Chrome permissions necessary to function:
   </p>
   <ul>
-    <li><strong>activeTab:</strong> Allows the Extension to run only on the tab the user explicitly activates.</li>
-    <li><strong>tabs:</strong> Used to communicate between the popup and the active webpage.</li>
-    <li><strong>storage:</strong> Saves local preferences such as theme mode or panel position. Data never leaves your browser.</li>
-    <li><strong>host permissions:</strong> Required to inspect Tailwind CSS classes on pages you choose to interact with.</li>
+    <li><strong>activeTab:</strong> Grants temporary access to the currently active tab when you click the extension icon and activate inspection mode.</li>
+    <li><strong>storage:</strong> Saves the inspection mode state (on/off) locally in your browser. Data never leaves your browser.</li>
+    <li><strong>host permissions (&lt;all_urls&gt;):</strong> Required to inspect and modify Tailwind CSS classes on any webpage you choose to work on.</li>
   </ul>
 
   <p>

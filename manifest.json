@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Instantly inspect, view, and modify Tailwind CSS classes on any webpage with live suggestions and undo/redo support.",
   "author": "Md Asif Siddiqui",
-  "permissions": ["tabs", "activeTab", "storage"],
+  "permissions": ["activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
