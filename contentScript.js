@@ -55,7 +55,7 @@ function isInsidePanel(el) {
 
 function saveState(el) {
   if (!el) return;
-  undoStack.push(el.className);
+  undoStack.push(el.getAttribute("class") || "");
   redoStack = [];
 }
 
@@ -136,7 +136,7 @@ function createPanel() {
 <div id="tw-inspector-panel" style="display:none; position:absolute; z-index:99999;">
   <div class="tw-panel">
     <div class="tw-header">
-      <span>ClassList</span>
+      <span id="tw-class-count">ClassList</span>
         <div class="tw-actions" style="display: flex; flex-direction: row; gap: 8px; align-items: center;">
        <!-- Undo -->
 <button id="tw-undo" title="Undo" style="background:none;border:none;color:white;font-size:16px;cursor:pointer;">
@@ -162,6 +162,14 @@ function createPanel() {
   </svg>
 </button>
 
+<!-- Copy HTML -->
+<button id="tw-copy-html" title="Copy Element HTML" style="background:none;border:none;color:white;font-size:16px;cursor:pointer;">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="16 18 22 12 16 6" />
+    <polyline points="8 6 2 12 8 18" />
+  </svg>
+</button>
+
 <!-- Close -->
 <button id="tw-close" title="Close" style="background:none;border:none;color:white;font-size:16px;cursor:pointer;">
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" width="20" height="20" viewBox="0 0 24 24">
@@ -172,10 +180,17 @@ function createPanel() {
 
         </div>
       </div>
+     <div class="tw-filter-wrap">
+       <svg class="tw-filter-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+       </svg>
+       <input id="tw-filter-input" type="text" placeholder="Filter classes..." />
+     </div>
      <ul id="tw-class-list"></ul>
-     <div style="font-size:10px; color:#64748b; margin-bottom:8px; display:flex; gap:12px;">
-       <span><span style="color:#22c55e;">●</span> Active</span>
-       <span><span style="color:#64748b;">○</span> Inactive</span>
+     <div id="tw-filter-empty">No classes match</div>
+     <div class="tw-legend">
+       <span><span class="tw-status-dot tw-dot-active"></span> Active</span>
+       <span><span class="tw-status-dot tw-dot-inactive"></span> Inactive / Overridden</span>
      </div>
    <div style="position:relative;">
       <input id="tw-add-input" type="text" placeholder="Add new class" />
@@ -200,22 +215,29 @@ function createPanel() {
 
   document.getElementById("tw-copy").addEventListener("click", () => {
     navigator.clipboard
-      .writeText(window.__tw_selectedEl?.className || "")
-      .then(() => showToast("✅ Class copied!"))
-      .catch(() => showToast("❌ Copy failed", 2000));
+      .writeText(window.__tw_selectedEl?.getAttribute("class") || "")
+      .then(() => showToast("Classes copied!"))
+      .catch(() => showToast("Copy failed", 2000, "error"));
+  });
+
+  document.getElementById("tw-copy-html").addEventListener("click", () => {
+    navigator.clipboard
+      .writeText(window.__tw_selectedEl?.outerHTML || "")
+      .then(() => showToast("HTML copied!"))
+      .catch(() => showToast("Copy failed", 2000, "error"));
   });
 
   document.getElementById("tw-undo").addEventListener("click", () => {
     if (!window.__tw_selectedEl || undoStack.length === 0) return;
-    redoStack.push(window.__tw_selectedEl.className);
-    window.__tw_selectedEl.className = undoStack.pop();
+    redoStack.push(window.__tw_selectedEl.getAttribute("class") || "");
+    window.__tw_selectedEl.setAttribute("class", undoStack.pop());
     updatePanel(window.__tw_selectedEl);
   });
 
   document.getElementById("tw-redo").addEventListener("click", () => {
     if (!window.__tw_selectedEl || redoStack.length === 0) return;
-    undoStack.push(window.__tw_selectedEl.className);
-    window.__tw_selectedEl.className = redoStack.pop();
+    undoStack.push(window.__tw_selectedEl.getAttribute("class") || "");
+    window.__tw_selectedEl.setAttribute("class", redoStack.pop());
     updatePanel(window.__tw_selectedEl);
   });
 
@@ -290,39 +312,70 @@ function createPanel() {
   input.addEventListener("blur", () => {
     setTimeout(() => (suggestionBox.style.display = "none"), 200);
   });
+
+  document.getElementById("tw-filter-input").addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    let visible = 0;
+    document.querySelectorAll("#tw-class-list li").forEach((li) => {
+      const matches = query === "" || (li.dataset.cls || "").includes(query);
+      li.style.display = matches ? "" : "none";
+      if (matches) visible++;
+    });
+    const emptyEl = document.getElementById("tw-filter-empty");
+    if (emptyEl) emptyEl.style.display = visible === 0 && query !== "" ? "block" : "none";
+  });
 }
 
-function showToast(message = "Copied!", duration = 1500) {
+function showToast(message = "Done!", duration = 1500, type = "success") {
+  const isError = type === "error";
+
+  const icon = isError
+    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" width="13" height="13">
+        <path d="M18 6L6 18M6 6l12 12"/>
+       </svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a3e635" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+        <path d="M5 13l4 4L19 7"/>
+       </svg>`;
+
   const toast = document.createElement("div");
-  toast.textContent = message;
+  toast.innerHTML = `
+    <span style="display:flex;align-items:center;flex-shrink:0;">${icon}</span>
+    <span>${message}</span>
+  `;
+
   Object.assign(toast.style, {
     position: "fixed",
-    top: "20px",
-    right: "20px",
-    background: "#18181b",
+    bottom: "24px",
+    left: "50%",
+    transform: "translateX(-50%) translateY(6px)",
+    background: "#111827",
     color: "#f1f5f9",
-    padding: "10px 16px",
+    padding: "9px 14px",
     borderRadius: "8px",
-    fontSize: "13px",
+    fontSize: "12.5px",
     fontFamily: "Inter, sans-serif",
     fontWeight: "500",
-    zIndex: 99999,
+    letterSpacing: "0.01em",
+    zIndex: "2147483647",
     opacity: "0",
-    transform: "translateY(-10px)",
-    transition: "all 0.2s ease",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-    border: "1px solid #334155",
+    transition: "opacity 0.15s ease, transform 0.15s ease",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    whiteSpace: "nowrap",
+    pointerEvents: "none",
   });
 
   document.body.appendChild(toast);
   setTimeout(() => {
     toast.style.opacity = "1";
-    toast.style.transform = "translateY(0)";
+    toast.style.transform = "translateX(-50%) translateY(0)";
   }, 10);
   setTimeout(() => {
     toast.style.opacity = "0";
-    toast.style.transform = "translateY(-10px)";
-    setTimeout(() => toast.remove(), 200);
+    toast.style.transform = "translateX(-50%) translateY(6px)";
+    setTimeout(() => toast.remove(), 150);
   }, duration);
 }
 
@@ -337,7 +390,11 @@ function hideError() {
 }
 
 function updatePanel(el) {
-  const classList = el.className.trim().split(/\s+/).filter(cls => cls);
+  const classList = (el.getAttribute("class") || "").trim().split(/\s+/).filter(cls => cls);
+
+  const countEl = document.getElementById("tw-class-count");
+  if (countEl) countEl.textContent = `ClassList (${classList.length})`;
+
   const list = document.getElementById("tw-class-list");
   list.innerHTML = "";
 
@@ -356,33 +413,43 @@ function updatePanel(el) {
     // Check if this class is likely having an effect
     const isActive = !isOverridden && isClassActive(cls, el, computedStyle);
 
-    // Add status dot indicator
-    const statusDot = isActive
-      ? '<span style="color:#22c55e; font-weight:700; font-size:12px;">●</span>'
-      : '<span style="color:#64748b; font-weight:700; font-size:12px;">○</span>';
-
+    li.dataset.cls = cls;
     li.innerHTML = `
-      <span style="flex:1; display:flex; align-items:center; gap:8px;">
-        <span style="color:#e2e8f0;">${cls}</span>
-        ${statusDot}
+      <span class="tw-cls-label${isActive ? '' : ' tw-cls-inactive'}">
+        <span class="tw-status-dot ${isActive ? 'tw-dot-active' : 'tw-dot-inactive'}" title="${isActive ? 'Active' : 'Overridden or inactive'}"></span>
+        <span class="tw-cls-name">${cls}</span>
       </span>
-      <button data-remove="${cls}">x</button>`;
-
-    li.style.display = "flex";
-    li.style.justifyContent = "space-between";
-    li.style.alignItems = "center";
+      <button class="tw-remove-btn" data-remove="${cls}" title="Remove ${cls}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="12" height="12">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>`;
 
     list.appendChild(li);
   });
 
   list.querySelectorAll("button[data-remove]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const clsToRemove = e.target.dataset.remove;
+      const clsToRemove = e.target.closest("button[data-remove]").dataset.remove;
       saveState(el);
       el.classList.remove(clsToRemove);
       updatePanel(el);
     });
   });
+
+  // Reapply active filter after re-render
+  const filterInput = document.getElementById("tw-filter-input");
+  if (filterInput && filterInput.value.trim()) {
+    const query = filterInput.value.toLowerCase().trim();
+    let visible = 0;
+    list.querySelectorAll("li").forEach((li) => {
+      const matches = (li.dataset.cls || "").includes(query);
+      li.style.display = matches ? "" : "none";
+      if (matches) visible++;
+    });
+    const emptyEl = document.getElementById("tw-filter-empty");
+    if (emptyEl) emptyEl.style.display = visible === 0 ? "block" : "none";
+  }
 }
 
 function findConflictingClasses(classList) {
@@ -483,6 +550,14 @@ function isClassActive(className, el, computedStyle) {
   return true;
 }
 
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && panelEl && panelEl.style.display !== "none") {
+    panelEl.style.display = "none";
+    window.__tw_selectedEl = null;
+    removeHighlight();
+  }
+});
+
 document.addEventListener("click", (e) => {
   if (!inspectEnabled) return;
 
@@ -491,12 +566,15 @@ document.addEventListener("click", (e) => {
   if (lastHovered === el) return;
   lastHovered = el;
 
-  if (!el.className) return;
+  if (!el.getAttribute("class")) return;
 
   window.__tw_selectedEl = el;
   highlightElement(el);
 
   if (!panelEl) createPanel();
+
+  const filterInput = document.getElementById("tw-filter-input");
+  if (filterInput) filterInput.value = "";
 
   updatePanel(el);
 

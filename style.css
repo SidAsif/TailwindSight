@@ -53,6 +53,85 @@
   transform: scale(0.95);
 }
 
+.tw-filter-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.tw-filter-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 13px;
+  height: 13px;
+  color: #475569;
+  pointer-events: none;
+}
+
+#tw-filter-input {
+  width: 100%;
+  padding: 7px 10px 7px 28px;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  background: #0a0e13;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 400;
+  font-family: "Inter", sans-serif;
+  transition: border-color 0.15s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+#tw-filter-input:focus {
+  border-color: #334155;
+}
+
+#tw-filter-input::placeholder {
+  color: #334155;
+}
+
+#tw-filter-empty {
+  display: none;
+  text-align: center;
+  color: #475569;
+  font-size: 12px;
+  padding: 14px 0 6px;
+}
+
+.tw-legend {
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.tw-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tw-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.tw-dot-active {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.tw-dot-inactive {
+  background: #475569;
+}
+
 #tw-class-list {
   list-style: none;
   padding: 0;
@@ -99,36 +178,65 @@
   justify-content: space-between;
   align-items: center;
   background: #1e293b;
-  padding: 9px 12px;
-  margin-bottom: 5px;
+  padding: 8px 10px 8px 12px;
+  margin-bottom: 4px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   color: #e2e8f0;
   border: 1px solid #334155;
-  transition: all 0.15s ease;
+  transition: background 0.12s ease, border-color 0.12s ease;
 }
 
 #tw-class-list li:hover {
-  background: #334155;
-  border-color: #475569;
+  background: #273244;
+  border-color: #3d4f66;
 }
 
-#tw-class-list li button {
+#tw-class-list li:hover .tw-remove-btn {
+  opacity: 1;
+}
+
+.tw-cls-label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tw-cls-name {
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tw-cls-inactive .tw-cls-name {
+  color: #64748b;
+  text-decoration: line-through;
+  text-decoration-color: #475569;
+}
+
+.tw-remove-btn {
   background: transparent;
-  color: #f87171;
-  border: 1px solid #7f1d1d;
+  color: #ef4444;
+  border: none;
   cursor: pointer;
-  padding: 3px 7px;
+  padding: 4px;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease;
+  flex-shrink: 0;
+  margin-left: 4px;
 }
 
-#tw-class-list li button:hover {
-  background: #7f1d1d;
-  color: #fca5a5;
+.tw-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  opacity: 1;
 }
 
 #tw-add-input {

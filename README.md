@@ -83,7 +83,7 @@ A powerful Chrome extension that lets you visually inspect, edit, and modify Tai
 ## Keyboard Shortcuts
 
 - `Enter` - Add class from input field
-- `Escape` - Close inspector panel (coming soon)
+- `Escape` - Close inspector panel
 
 ## Permissions Explained
 
@@ -118,7 +118,14 @@ All operations are performed locally in your browser.
 
 ## Changelog
 
-### Version 1.0.0 (Current)
+### Version 1.1.0 (Current)
+
+- Escape key closes the inspector panel
+- Class count badge in panel header (`ClassList (n)`)
+- Filter input to search within applied classes
+- Copy Element HTML button (`</>`) — copies full `outerHTML` to clipboard
+
+### Version 1.0.0
 
 - Initial release
 - Visual element inspection
@@ -132,14 +139,13 @@ All operations are performed locally in your browser.
 
 ## Roadmap
 
-Future features under consideration:
-
-- Keyboard shortcuts for common actions
-- Export/import class sets
-- Class history per element
-- Custom class presets
-- Multi-element selection
-- Integration with Tailwind config
+- "Why isn't this class working?" debugger
+- Inline class-to-CSS tooltip on hover
+- Live breakpoint ruler
+- Accessibility / WCAG contrast checker
+- Visual box model (Tailwind-aware)
+- Dark mode toggle
+- Session persistence (restore edits on page reload)
 
 ## Contributing
 

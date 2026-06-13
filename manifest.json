@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TailwindSight — Inspect & Edit Tailwind CSS in Real-Time",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Instantly inspect, view, and modify Tailwind CSS classes on any webpage with live suggestions and undo/redo support.",
   "author": "Md Asif Siddiqui",
   "permissions": ["activeTab", "storage"],
