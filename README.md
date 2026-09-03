@@ -13,11 +13,18 @@ A powerful Chrome extension that lets you visually inspect, edit, and modify Tai
 - **Active/Inactive Indicators** - Visual dots show which classes are active (●) or overridden (○)
 - **Conflict Detection** - Automatically detects and marks conflicting classes (e.g., `md:text-3xl` vs `md:text-4xl`)
 
+### Developer Tools
+
+- **"Why isn't this class working?" Debugger** - Classes with a real problem flag themselves with an amber icon before you click anything. Click for a plain-English diagnosis: viewport too narrow for the responsive prefix, superseded by an active responsive variant, overridden by a conflicting class (named, with the exact property), blocked by an inline style, or beaten by a page stylesheet rule
+- **Inline CSS Explainer** - Hover any class to see the exact CSS it generates, including media queries for responsive prefixes
+- **Live Breakpoint Ruler** - A bar at the top of the page shows the live viewport width and highlights the active breakpoint as you resize. Breakpoints are read from the page's own stylesheets, so projects with a custom `screens` config get their real values
+- **Copy for AI** - One click copies a structured context block ready to paste into Claude, ChatGPT, or Cursor: element HTML, classes, any detected issues, computed styles, the detected Tailwind version, the page's real breakpoints, the live colour scheme, and viewport state
+
 ### Advanced Features
 
 - **Undo/Redo Support** - Full history tracking for all class modifications
 - **Copy Classes** - One-click copy of all classes to clipboard
-- **Responsive Prefixes** - Full support for `sm:`, `md:`, `lg:`, `xl:`, `2xl:` prefixes
+- **Responsive Prefixes** - Full support for `sm:`, `md:`, `lg:`, `xl:`, `2xl:` and any custom breakpoint names defined in your config
 - **State Variants** - Works with `hover:`, `focus:`, `active:`, `dark:`, and other modifiers
 - **Opacity Modifiers** - Supports opacity syntax like `text-gray-600/90`
 - **Arbitrary Values** - Compatible with arbitrary values like `text-[#ff0000]`
@@ -82,12 +89,11 @@ A powerful Chrome extension that lets you visually inspect, edit, and modify Tai
 
 ## Keyboard Shortcuts
 
-- `Enter` - Add class from input field
-- `Escape` - Close inspector panel
+- `Enter` - Add the class from the input field
+- `Escape` - Unwinds one layer at a time: closes open autocomplete suggestions, then clears a filled input, then closes the inspector panel
 
 ## Permissions Explained
 
-- **tabs** - Required to interact with the current tab
 - **activeTab** - Access the currently active webpage
 - **storage** - Save inspection state across sessions
 - **host_permissions: <all_urls>** - Allow inspection on any webpage
@@ -96,7 +102,7 @@ A powerful Chrome extension that lets you visually inspect, edit, and modify Tai
 
 - **Manifest Version**: 3
 - **Minimum Chrome Version**: 88+
-- **Tailwind CSS Version Support**: All versions
+- **Tailwind CSS Version Support**: v3 and v4 (detected automatically; v4's `@layer`-wrapped utilities and `(width >= 40rem)` range media queries are both understood)
 - **Framework**: Vanilla JavaScript (no dependencies)
 
 ## Privacy
@@ -118,7 +124,34 @@ All operations are performed locally in your browser.
 
 ## Changelog
 
-### Version 1.1.0 (Current)
+### Version 1.2.0 (Current)
+
+- **"Why isn't this class working?" Debugger** — one-click diagnosis for any class: responsive prefix vs viewport, named class conflicts with the exact property, inline style overrides, and page stylesheet overrides verified against computed styles
+- **Inline CSS Explainer** — hover any class in the panel to see the CSS it generates
+- **Live Breakpoint Ruler** — real-time viewport width + active breakpoint bar while inspecting
+- **Copy for AI** — copies element HTML, classes, detected issues, computed styles, detected Tailwind version, real breakpoints, live colour scheme, and viewport context as a ready-to-paste AI prompt
+- Smarter conflict detection: font-weight, text-align, and position conflicts now detected; `text-5xl` vs `text-pretty` style false positives fixed
+
+**Accuracy**
+
+- Breakpoints are now read from the page's own stylesheets instead of being hardcoded, so a custom `screens` config no longer produces wrong answers in the ruler, the debugger, or the AI context. Understands both v3's `(min-width: 640px)` and v4's `(width >= 40rem)` range syntax, and descends into the `@layer` blocks v4 wraps its utilities in
+- The Tailwind major version (v3 or v4) is detected from the page and stated in the AI context, so an assistant doesn't hand back syntax that silently doesn't work
+- Fixed a false positive that fired on one of Tailwind's most common patterns: `text-5xl sm:text-6xl` above the `sm` breakpoint was reported as a page stylesheet override with higher specificity, when the responsive variant was simply doing its job. It now reports as expected behaviour rather than a problem
+- The live colour scheme (and how it's set) is included in the AI context, so `dark:` classes no longer look broken when the page is rendering light
+- Trimmed meaningless lines from the captured computed styles — flex properties on non-flex elements, `position: static`, `overflow: visible`, and shorthands like `border: 0px none rgb(0, 0, 0)`
+
+**Fixes and polish**
+
+- Removed the Google Fonts `@import` from the injected stylesheet — it was blocked by the extension CSP (so it never applied) while still requesting `fonts.googleapis.com` from every page you visited. Now uses a system font stack; no page you visit makes an outbound request
+- Enter in the "Add new class" field now adds the class — previously only the Add Class button worked
+- Escape now unwinds one layer at a time: open suggestions, then a filled input, then the panel — it no longer discards your selection while you are mid-edit
+- Debug icons now flag problems up front: a class the debugger finds a real issue with shows an amber icon without being clicked, and healthy classes return an "Applied" result instead of silently doing nothing
+- Panel header rebuilt: grouped undo/redo, copy and close actions, hover and focus states that actually render, undo/redo disabled at the ends of history, and `aria-label`s on every control
+- Redesigned the diagnosis card to match the panel — neutral surface, status dot, and a plain-language verdict label instead of an alert-style colour block
+- Redesigned the popup: live inspection status, state-aware button, keyboard hint, and a privacy link
+- Removed a `console.log` that ran on every page you visited, whether or not you were inspecting
+
+### Version 1.1.0
 
 - Escape key closes the inspector panel
 - Class count badge in panel header (`ClassList (n)`)
@@ -139,11 +172,10 @@ All operations are performed locally in your browser.
 
 ## Roadmap
 
-- "Why isn't this class working?" debugger
-- Inline class-to-CSS tooltip on hover
-- Live breakpoint ruler
 - Accessibility / WCAG contrast checker
+- Design consistency scanner (inconsistent radii, spacing, colors across the page)
 - Visual box model (Tailwind-aware)
+- Edit session diff + export
 - Dark mode toggle
 - Session persistence (restore edits on page reload)
 

@@ -1,8 +1,18 @@
 const inspectBtn = document.getElementById("startInspect");
+const statusText = document.getElementById("statusText");
+
+// Single place that renders inspection state, so the button label, the status
+// row and the body state class can never drift apart.
+function renderState(isInspecting) {
+  document.body.classList.toggle("is-active", isInspecting);
+  inspectBtn.textContent = isInspecting ? "Stop Inspecting" : "Start Inspecting";
+  statusText.textContent = isInspecting
+    ? "Inspecting this page"
+    : "Inspection off";
+}
 
 chrome.storage.local.get("isInspecting", (res) => {
-  const current = res.isInspecting || false;
-  inspectBtn.textContent = current ? "Stop Inspecting" : "Start Inspecting";
+  renderState(res.isInspecting || false);
 });
 
 function showStatus(msg) {
@@ -25,7 +35,7 @@ inspectBtn.addEventListener("click", async () => {
     const newState = !res.isInspecting;
 
     chrome.storage.local.set({ isInspecting: newState });
-    inspectBtn.textContent = newState ? "Stop Inspecting" : "Start Inspecting";
+    renderState(newState);
 
     chrome.tabs.sendMessage(tab.id, {
       type: "TOGGLE_INSPECT_MODE",
@@ -34,7 +44,7 @@ inspectBtn.addEventListener("click", async () => {
       // Content script not running — page was open before the extension loaded
       showStatus("Reload the page, then try again.");
       chrome.storage.local.set({ isInspecting: !newState });
-      inspectBtn.textContent = !newState ? "Stop Inspecting" : "Start Inspecting";
+      renderState(!newState);
     });
   });
 });

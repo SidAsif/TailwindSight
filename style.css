@@ -1,8 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
 #tw-inspector-panel {
   z-index: 99999;
-  font-family: "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: top 0.15s ease, left 0.15s ease;
 }
 
@@ -31,13 +30,33 @@
   border-bottom: 1px solid #1e293b;
 }
 
+#tw-class-count {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tw-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Hairline dividers grouping history | copy | close */
+.tw-action-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px;
+  background: #1e293b;
+}
+
 .tw-actions button {
   background: transparent;
   color: #94a3b8;
-  border: 1px solid #334155;
+  border: 1px solid transparent;
   cursor: pointer;
   font-size: 16px;
-  padding: 6px;
+  padding: 4px;
   border-radius: 6px;
   transition: all 0.15s ease;
   display: flex;
@@ -51,6 +70,39 @@
 }
 .tw-actions button:active {
   transform: scale(0.95);
+}
+.tw-actions button:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 1px;
+}
+
+/* Copy for AI — the v1.2.0 headline action */
+.tw-actions button.tw-action-accent {
+  color: #818cf8;
+}
+.tw-actions button.tw-action-accent:hover {
+  background: rgba(99, 102, 241, 0.14);
+  color: #a5b4fc;
+  border-color: #6366f1;
+}
+
+.tw-actions button.tw-action-close:hover {
+  background: #273244;
+  color: #f1f5f9;
+  border-color: #3d4f66;
+}
+
+.tw-actions button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.tw-actions button:disabled:hover {
+  background: transparent;
+  color: #94a3b8;
+  border-color: transparent;
+}
+.tw-actions button:disabled:active {
+  transform: none;
 }
 
 .tw-filter-wrap {
@@ -78,7 +130,7 @@
   color: #94a3b8;
   font-size: 12px;
   font-weight: 400;
-  font-family: "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: border-color 0.15s ease;
   outline: none;
   box-sizing: border-box;
@@ -193,7 +245,7 @@
   border-color: #3d4f66;
 }
 
-#tw-class-list li:hover .tw-remove-btn {
+#tw-class-list li:hover .tw-cls-actions {
   opacity: 1;
 }
 
@@ -218,9 +270,28 @@
   text-decoration-color: #475569;
 }
 
-.tw-remove-btn {
+.tw-cls-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* Reveal-on-hover moved from the container to the buttons so a flagged debug
+   icon can stay visible while the remove button still hides. */
+.tw-cls-actions button {
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+#tw-class-list li:hover .tw-cls-actions button,
+.tw-cls-actions button.tw-debug-btn--flag {
+  opacity: 1;
+}
+
+.tw-debug-btn {
   background: transparent;
-  color: #ef4444;
+  color: #64748b;
   border: none;
   cursor: pointer;
   padding: 4px;
@@ -228,15 +299,45 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 0.12s ease, background 0.12s ease;
+  transition: background 0.12s ease, color 0.12s ease;
   flex-shrink: 0;
-  margin-left: 4px;
+}
+
+.tw-debug-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+}
+
+/* A class the debugger found a real problem with — amber matches the warning
+   dot on the diagnosis card it opens. */
+.tw-debug-btn--flag {
+  color: #f59e0b;
+}
+
+.tw-debug-btn--flag:hover {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+/* Rests neutral so hovered rows aren't peppered with red; the destructive
+   tint only appears once you're actually on the button. */
+.tw-remove-btn {
+  background: transparent;
+  color: #64748b;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
 .tw-remove-btn:hover {
-  background: rgba(239, 68, 68, 0.15);
-  opacity: 1;
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
 }
 
 #tw-add-input {
@@ -249,7 +350,7 @@
   color: #f1f5f9;
   font-size: 13px;
   font-weight: 400;
-  font-family: "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: all 0.15s ease;
   outline: none;
 }
@@ -357,7 +458,7 @@
   font-weight: 500;
   font-size: 13px;
   cursor: pointer;
-  font-family: "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   transition: all 0.15s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -370,4 +471,158 @@
 #tw-add-btn:active {
   transform: scale(0.98);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Class Debugger ── */
+#tw-debug-output {
+  display: none;
+}
+
+/* Same surface, border and radius as #tw-class-list li so the card reads as a
+   sibling of the list it belongs to. Status comes from the dot idiom the list
+   already uses — a left accent stripe was a callout pattern found nowhere
+   else in the panel. */
+.tw-debug-result {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  line-height: 1.55;
+}
+
+.tw-debug-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.tw-debug-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  background: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+.tw-debug-ok .tw-debug-dot {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+.tw-debug-info .tw-debug-dot {
+  background: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+}
+
+.tw-debug-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f59e0b;
+}
+.tw-debug-ok .tw-debug-label   { color: #22c55e; }
+.tw-debug-info .tw-debug-label { color: #60a5fa; }
+
+.tw-debug-cls {
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 11px;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.tw-debug-msg {
+  color: #cbd5e1;
+  font-size: 12px;
+  margin: 0;
+}
+
+.tw-debug-hint {
+  color: #94a3b8;
+  font-size: 11px;
+  margin: 8px 0 0;
+  padding-top: 7px;
+  border-top: 1px solid #334155;
+}
+
+/* Monochrome inline code — violet chips read as links and, at four per
+   card, turned the message into chip soup. */
+.tw-debug-msg code,
+.tw-debug-hint code {
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #e2e8f0;
+}
+
+/* ── Breakpoint Ruler ── */
+#tw-ruler {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483646;
+  height: 28px;
+  background: rgba(15, 20, 25, 0.97);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  pointer-events: none;
+  user-select: none;
+}
+
+#tw-ruler-width {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  min-width: 54px;
+  letter-spacing: 0.02em;
+}
+
+.tw-ruler-bps {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.tw-ruler-bp {
+  font-size: 10px;
+  font-weight: 500;
+  color: #94a3b8;
+  padding: 2px 7px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tw-ruler-bp em {
+  font-style: normal;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.tw-bp-active {
+  color: #a5b4fc;
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.18);
+}
+
+.tw-bp-active em {
+  color: #a5b4fc;
 }

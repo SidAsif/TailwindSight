@@ -1,0 +1,13 @@
+# Tool caches
+.gide/
+
+# Build artifacts — attach these to GitHub Releases instead of committing them,
+# so release history doesn't permanently grow the repo.
+*.zip
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

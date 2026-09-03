@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TailwindSight</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
-
+      /* System font stack — the previous @import of Inter from Google Fonts is
+         blocked by the MV3 extension CSP, so it silently fell back to the
+         default sans anyway (and leaked a request to fonts.googleapis.com). */
       * {
         margin: 0;
         padding: 0;
@@ -14,94 +15,61 @@
       }
 
       body {
-        font-family: "Inter", sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        width: 300px;
         padding: 16px;
-        width: 340px;
-        background: #0a0e13;
-        color: #e2e8f0;
-      }
-
-      .card {
         background: #0f1419;
-        border: 1px solid #1e293b;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        color: #e2e8f0;
+        -webkit-font-smoothing: antialiased;
       }
 
       .header {
-        margin-bottom: 20px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #1e293b;
-      }
-
-      .logo {
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 6px;
-      }
-
-      .logo-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(99, 102, 241, 0.1);
-        border-radius: 8px;
-        font-size: 18px;
-        border: 1px solid rgba(99, 102, 241, 0.2);
-      }
-
-      h1 {
-        font-size: 18px;
-        font-weight: 600;
-        color: #f8fafc;
-        letter-spacing: -0.02em;
-      }
-
-      .subtitle {
-        font-size: 12px;
-        color: #64748b;
-        font-weight: 400;
-        margin-top: 4px;
-      }
-
-      .action-section {
         margin-bottom: 16px;
       }
 
-      button {
-        width: 100%;
-        padding: 12px 16px;
-        background: #6366f1;
-        color: white;
-        border: none;
+      .logo-icon {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.25);
         border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.15s ease;
-        font-family: "Inter", sans-serif;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        color: #818cf8;
       }
 
-      button:hover {
-        background: #4f46e5;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      h1 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #f8fafc;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
       }
 
-      button:active {
-        transform: scale(0.98);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      h1 span {
+        color: #818cf8;
       }
 
-      .info {
+      .subtitle {
+        font-size: 11px;
+        color: #64748b;
+        margin-top: 2px;
+      }
+
+      /* Live state readout — the old static "Click to inspect…" box said the
+         same thing whatever the extension was doing. */
+      .status {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 10px 12px;
+        padding: 9px 12px;
+        margin-bottom: 10px;
         background: #1e293b;
         border: 1px solid #334155;
         border-radius: 6px;
@@ -109,13 +77,88 @@
         color: #94a3b8;
       }
 
-      .info-icon {
-        color: #6366f1;
-        font-size: 14px;
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: #475569;
+      }
+
+      body.is-active .status-dot {
+        background: #22c55e;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+      }
+
+      body.is-active .status-text {
+        color: #e2e8f0;
+      }
+
+      button {
+        width: 100%;
+        padding: 11px 16px;
+        background: #6366f1;
+        color: #fff;
+        border: 1px solid #6366f1;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13.5px;
+        font-weight: 600;
+        font-family: inherit;
+        transition: background 0.15s ease, border-color 0.15s ease,
+          color 0.15s ease;
+      }
+
+      button:hover {
+        background: #4f46e5;
+        border-color: #4f46e5;
+      }
+
+      button:active {
+        transform: scale(0.99);
+      }
+
+      button:focus-visible {
+        outline: 2px solid #818cf8;
+        outline-offset: 2px;
+      }
+
+      /* While inspecting, the button is a way out — not the primary call to
+         action — so it drops to the same quiet surface the class-list rows
+         use, and hovers one step lighter rather than signalling danger. */
+      body.is-active button {
+        background: #1e293b;
+        border-color: #334155;
+        color: #e2e8f0;
+      }
+
+      body.is-active button:hover {
+        background: #273244;
+        border-color: #3d4f66;
+        color: #f1f5f9;
+      }
+
+      .hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 12px;
+        font-size: 11px;
+        color: #64748b;
+      }
+
+      kbd {
+        font-family: ui-monospace, "Cascadia Code", monospace;
+        font-size: 10px;
+        color: #cbd5e1;
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 4px;
+        padding: 1px 5px;
       }
 
       .footer {
-        margin-top: 16px;
+        margin-top: 14px;
         padding-top: 12px;
         border-top: 1px solid #1e293b;
         display: flex;
@@ -125,55 +168,82 @@
         color: #475569;
       }
 
+      .footer a {
+        color: #64748b;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        color: #94a3b8;
+        text-decoration: underline;
+      }
+
       .version-badge {
+        font-family: ui-monospace, "Cascadia Code", monospace;
         background: #1e293b;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 500;
         border: 1px solid #334155;
+        padding: 2px 7px;
+        border-radius: 4px;
+        color: #64748b;
       }
 
       #tw-status-msg {
         display: none;
         margin-top: 10px;
-        padding: 8px 12px;
+        padding: 9px 12px;
         background: rgba(239, 68, 68, 0.1);
         border: 1px solid rgba(239, 68, 68, 0.3);
         border-radius: 6px;
-        font-size: 12px;
+        font-size: 11.5px;
+        line-height: 1.45;
         color: #fca5a5;
-        text-align: center;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <div class="header">
-        <div class="logo">
-          <span class="logo-icon">⚡</span>
-          <div>
-            <h1>TailwindSight</h1>
-            <div class="subtitle">CSS Class Inspector</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="action-section">
-        <button id="startInspect">Start Inspecting</button>
-      </div>
-
-      <div id="tw-status-msg"></div>
-
-      <div class="info">
-        <span class="info-icon">ℹ</span>
-        <span>Click to inspect and modify Tailwind classes</span>
-      </div>
-
-      <div class="footer">
-        <span>Made with Tailwind</span>
-        <span class="version-badge">v1.1.0</span>
+    <div class="header">
+      <span class="logo-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </span>
+      <div>
+        <h1>Tailwind<span>Sight</span></h1>
+        <div class="subtitle">CSS Class Inspector</div>
       </div>
     </div>
+
+    <div class="status">
+      <span class="status-dot"></span>
+      <span class="status-text" id="statusText">Inspection off</span>
+    </div>
+
+    <button id="startInspect">Start Inspecting</button>
+
+    <div id="tw-status-msg" role="alert"></div>
+
+    <div class="hint">
+      <kbd>Esc</kbd>
+      <span>closes the inspector panel</span>
+    </div>
+
+    <div class="footer">
+      <a href="privacy-policy.html" target="_blank" rel="noopener">Privacy</a>
+      <span class="version-badge">v1.2.0</span>
+    </div>
+
     <script src="popup.js"></script>
   </body>
 </html>

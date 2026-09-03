@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "TailwindSight — Inspect & Edit Tailwind CSS in Real-Time",
-  "version": "1.1.0",
-  "description": "Instantly inspect, view, and modify Tailwind CSS classes on any webpage with live suggestions and undo/redo support.",
+  "name": "Tailwind CSS Inspector & Class Debugger",
+  "version": "1.2.0",
+  "description": "Edit Tailwind classes live on any page. Diagnose why a class is not working, see the CSS it generates, copy context for AI.",
   "author": "Md Asif Siddiqui",
   "permissions": ["activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "TailwindSight - CSS Class Inspector",
+    "default_title": "TailwindSight - Class Inspector & Debugger",
     "default_icon": {
       "16": "icons/Browser toolbar.png",
       "48": "icons/Extensions page.png",
